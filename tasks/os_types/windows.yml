@@ -10,7 +10,6 @@
     dest: '{{ packer_windows_unattended_path }}'
 
 - name: 'Create user data file for AWS'
-  when: 'builder_category == "amazon"'
   copy:
     content: "<powershell>\r\n{{ lookup('file', 'files/Enable-WinRM.ps1') }}\r\n</powershell>"
     dest: '{{ packer_windows_user_data_path }}'
