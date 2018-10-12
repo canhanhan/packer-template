@@ -2,6 +2,14 @@
 - debug:
     msg: "Building {{ packer_name }}"
 
+- fail:
+    msg: 'image key is not provided with packer_options'
+  when: '"image" not in packer_options'
+
+- fail:
+    msg: 'builders key is not provided with packer_options'
+  when: '"builders" not in packer_options'
+
 - name: 'Include os type specific variables'
   include_vars: 'vars/{{ packer_os_type | basename }}.yml'
 
