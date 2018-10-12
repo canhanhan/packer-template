@@ -1,0 +1,15 @@
+packer_template_path: '{{ packer_dest }}/{{ packer_name | basename }}.json'
+
+packer_image: '{{ packer_image_types[packer_options.image] }}'
+
+packer_image_types: {}
+packer_temp_builders: []
+packer_builders: {}
+packer_builder_catalog: []
+packer_initialize_provisioners: []
+packer_guest_tools_provisioners: []
+packer_setup_provisioners: []
+packer_cleanup_provisioners: []
+packer_provisioners: []
+packer_post_processors: []
+packer_variables: {}

@@ -1,0 +1,21 @@
+---
+- name: 'Create files directory'
+  file:
+    path: '{{ packer_dest }}/files'
+    state: 'directory'
+  
+- name: 'Create subdirectories'
+  when: item.state == 'directory'
+  file:
+    path: '{{ packer_dest }}/files/{{ item.path }}'
+    state: 'directory'
+    mode: '{{ item.mode }}'
+  with_filetree: 'files/'
+
+- name: 'Copy files'
+  when: 'item.state == "file"'
+  copy:
+    src: '{{ item.src }}'
+    dest: '{{ packer_dest }}/files/{{ item.path }}'
+    mode: '{{ item.mode }}'
+  with_filetree: 'files/'

@@ -1,0 +1,23 @@
+---
+- debug:
+    var: builder_category
+
+- name: 'Combine builder defaults'
+  set_fact:
+    builder_config: '{{ general_defaults | combine(category_defaults, builder_defaults, builder, recursive=True) }}'
+  vars:
+    general_defaults: '{{ packer_builder_defaults.get("all", {}) }}'
+    category_defaults: '{{ packer_builder_defaults.get(builder_category, {}) }}'
+    builder_defaults: '{{ packer_builder_defaults.get(builder.type, {}) }}'
+
+- name: 'Combine OS defaults'
+  set_fact:
+    builder_config: '{{ builder_config | combine(general_defaults, category_defaults, builder_defaults, builder, recursive=True) }}'
+  vars:
+    os_defaults: '{{ packer_image.get("builders", {}) }}'
+    general_defaults: '{{ os_defaults.get("all", {}) }}'
+    category_defaults: '{{ os_defaults.get(builder_category, {}) }}'
+    builder_defaults: '{{ os_defaults.get(builder.type, {}) }}'
+
+- set_fact:
+    packer_builders: '{{ packer_builders | combine({ builder.name: builder_config }) }}'
