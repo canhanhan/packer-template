@@ -3,7 +3,7 @@
   file:
     path: '{{ packer_dest }}/files'
     state: 'directory'
-  
+
 - name: 'Create subdirectories'
   when: item.state == 'directory'
   file:

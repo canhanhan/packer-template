@@ -1,3 +1,4 @@
+---
 packer_windows_unattended_file: 'files/{{ packer_options.image }}/Autounattend.xml'
 packer_windows_unattended_path: '{{ packer_dest }}/{{ packer_windows_unattended_file }}'
 packer_windows_user_data_file: 'files/{{ packer_name }}_user_data.txt'
@@ -78,9 +79,9 @@ packer_windows_defaults:
   builders:
     all:
       communicator: 'winrm'
-      winrm_insecure: True
-      winrm_use_ssl: True
-      winrm_use_ntlm: True
+      winrm_insecure: true
+      winrm_use_ssl: true
+      winrm_use_ntlm: true
       winrm_username: 'Administrator'
     azure:
       winrm_username: 'packer'
@@ -112,7 +113,7 @@ packer_windows2012r2:
           virtualization-type: 'hvm'
           name: '*Windows_Server-2012-R2*English-64Bit-Base*'
           root-device-type: 'ebs'
-        most_recent: True
+        most_recent: true
         owners: 'amazon'
     azure:
       os_type: 'Windows'

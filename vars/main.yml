@@ -1,3 +1,4 @@
+---
 packer_builder_defaults:
   azure:
     client_id: '[[user `client_id`}}'
@@ -8,12 +9,12 @@ packer_builder_defaults:
   amazon-ebs:
     access_key: '[[user `access_key`]]'
     secret_key: '[[user `secret_key`]]'
-    skip_region_validation: True
+    skip_region_validation: true
     instance_type: 't2.micro'
   virtualbox:
-    headless: True
+    headless: true
     output_directory: 'output-[[build_name]]-[[user `version`]]'
     guest_additions_mode: 'upload'
     vboxmanage:
-    - ['modifyvm', '[[.Name]]', '--memory', '[[user `memory_size`]]']
-    - ['modifyvm', '[[.Name]]', '--cpus', '[[user `cpu_count`]]']
+      - ['modifyvm', '[[.Name]]', '--memory', '[[user `memory_size`]]']
+      - ['modifyvm', '[[.Name]]', '--cpus', '[[user `cpu_count`]]']

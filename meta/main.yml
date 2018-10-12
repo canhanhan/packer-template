@@ -1,0 +1,10 @@
+---
+galaxy_info:
+  author: 'Can Hanhan'
+  description: 'Ansible role to generate Packer templates'
+  license: MIT
+  min_ansible_version: 2.5
+  galaxy_tags:
+    - packer
+    - windows
+dependencies: []
