@@ -3,3 +3,9 @@
   hosts: all
   roles:
     - role: packer-template
+      packer_name: 'test_image'
+      packer_dest: '/tmp/packer'
+      packer_os_type: 'windows'
+      packer_options:
+        image: 'Windows2012R2Core'
+        builders: {}
