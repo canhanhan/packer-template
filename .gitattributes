@@ -1,0 +1,4 @@
+*.yml text=auto eol=lf
+*.ps1 text=auto eol=crlf
+sysprep_unattended.xml text=auto eol=crlf
+Autounattend.xml.j2 text=auto eol=crlf
