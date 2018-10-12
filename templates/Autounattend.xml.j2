@@ -101,7 +101,7 @@
                     <PlainText>true</PlainText>
                 </Password>
                 <Enabled>true</Enabled>
-                <Username>{{ packer_image.variables.username }}</Username>
+                <Username>Administrator</Username>
             </AutoLogon>
             <FirstLogonCommands>
                 <SynchronousCommand wcm:action="add">
@@ -132,18 +132,6 @@
                 <NetworkLocation>Home</NetworkLocation>
                 <ProtectYourPC>1</ProtectYourPC>
             </OOBE>
-            <UserAccounts>
-                <LocalAccounts>
-                    <LocalAccount wcm:action="add">
-                       <Password>
-                          <Value>{{ packer_image.temp_password }}</Value>
-                          <PlainText>true</PlainText>
-                       </Password>
-                       <Group>Administrators</Group>
-                       <Name>{{ packer_image.variables.username }}</Name>
-                    </LocalAccount>
-               </LocalAccounts>
-            </UserAccounts>
             <RegisteredOwner />
         </component>
     </settings>

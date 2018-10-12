@@ -3,7 +3,6 @@ packer_windows_unattended_path: '{{ packer_dest }}/{{ packer_windows_unattended_
 packer_windows_user_data_file: 'files/{{ packer_name }}_user_data.txt'
 packer_windows_user_data_path: '{{ packer_dest }}/{{ packer_windows_user_data_file }}'
 
-packer_windows_username: 'Adminstrator'
 packer_windows_temp_password: 'ThisIsATemporaryPassword!ItWillBeChangedDuringInstallation!'
 
 packer_windows_initialize:
@@ -19,7 +18,7 @@ packer_windows_initialize:
     script: '[[template_dir]]/files/Install-WMF51.ps1'
   - type: 'powershell'
     only: ['virtualbox']
-    elevated_user: '{{ packer_windows_username }}'
+    elevated_user: 'Administrator'
     elevated_password: '{{ packer_windows_temp_password }}'
     script: '[[template_dir]]/files/Install-WMF51.ps1'
   - type: 'windows-restart'
@@ -61,7 +60,7 @@ packer_windows_cleanup:
   - type: "powershell"
     only: ['virtualbox']
     environment_vars: ['ADMIN_PWD=[[user `password`]]']
-    inline: ['net user "{{ packer_windows_username }}" "$ENV:ADMIN_PWD"']
+    inline: ['net user "Administrator" "$ENV:ADMIN_PWD"']
 
 packer_windows2012r2_gui_remover:
   - type: "powershell"
@@ -82,7 +81,7 @@ packer_windows_defaults:
       winrm_insecure: True
       winrm_use_ssl: True
       winrm_use_ntlm: True
-      winrm_username: '{{ packer_windows_username }}'
+      winrm_username: 'Administrator'
     azure:
       winrm_username: 'packer'
     virtualbox:
