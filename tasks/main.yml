@@ -1,14 +1,11 @@
 ---
-- debug:
-    msg: "Building {{ packer_name }}"
-
-- fail:
-    msg: 'image key is not provided with packer_options'
-  when: '"image" not in packer_options'
-
-- fail:
-    msg: 'builders key is not provided with packer_options'
-  when: '"builders" not in packer_options'
+- name: 'Validate mandatory settings'
+  fail:
+    msg: '{{ item }} key is not provided with packer_options'
+  when: 'item not in packer_options'
+  with_items:
+    - 'image'
+    - 'builders'
 
 - name: 'Include os type specific variables'
   include_vars: 'vars/{{ packer_os_type | basename }}.yml'
@@ -30,10 +27,12 @@
   loop_control:
     loop_var: builder
 
-- set_fact:
+- name: 'Create list of provided builders'
+  set_fact:
     packer_builder_list: '{{ packer_builders | dict2items | map(attribute="value") | list }}'
 
-- set_fact:
+- name: 'Create builder catalog by name and category'
+  set_fact:
     packer_builder_catalog: '{{ packer_builder_catalog + [{ "key": item, "builders": names_by_type }, { "key": builder_category, "builders": names_by_category }] }}'
   vars:
     builder_category: '{{ item.split("-") | first }}'
@@ -60,27 +59,26 @@
 - name: 'Set variables from image'
   set_fact:
     packer_variables: '{{ packer_variables | combine({ item.key: item.value|string}) }}'
-  no_log: yes
+  no_log: true
   with_dict: '{{ packer_image.variables }}'
 
 - name: 'Set variables from options'
   set_fact:
     packer_variables: '{{ packer_variables | combine({ item.key: item.value|string}) }}'
-  no_log: yes
+  no_log: true
   with_dict: '{{ packer_options.get("variables", {}) }}'
 
-- set_fact:
-    PACKER_TEMPLATE:
+- name: 'Generate packer template'
+  copy:
+    content: "{{ packer_template | to_nice_json | string | replace('[[', '{{') | replace(']]', '}}') | string }}"
+    dest: '{{ packer_template_path }}'
+  vars:
+    packer_template:
       builders: '{{ packer_builder_list }}'
       provisioners: '{{ packer_provisioners }}'
       post-processors: '{{ packer_post_processors }}'
       variables: '{{ packer_variables }}'
       sensitive-variables: '{{ packer_options.get("sensitive-variables", []) }}'
-
-- name: 'Generate packer template'
-  copy:
-    content: "{{ PACKER_TEMPLATE | to_nice_json | string | replace('[[', '{{') | replace(']]', '}}') | string }}"
-    dest: '{{ packer_template_path }}'
 
 - name: 'Copy files and scripts'
   include_tasks: 'files.yml'
