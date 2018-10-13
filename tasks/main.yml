@@ -7,6 +7,19 @@
     - 'image'
     - 'builders'
 
+- name: 'Set initial variables'
+  set_fact:
+    packer_temp_builders: []
+    packer_builders: {}
+    packer_builder_catalog: []
+    packer_initialize_provisioners: []
+    packer_guest_tools_provisioners: []
+    packer_setup_provisioners: []
+    packer_cleanup_provisioners: []
+    packer_provisioners: []
+    packer_post_processors: []
+    packer_variables: {}
+
 - name: 'Include os type specific variables'
   include_vars: 'vars/{{ packer_os_type | basename }}.yml'
 
