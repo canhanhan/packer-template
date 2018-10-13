@@ -1,7 +1,4 @@
 ---
-- debug:
-    var: builder_category
-
 - name: 'Combine builder defaults'
   set_fact:
     builder_config: '{{ general_defaults | combine(category_defaults, builder_defaults, builder, recursive=True) }}'
@@ -19,5 +16,6 @@
     category_defaults: '{{ os_defaults.get(builder_category, {}) }}'
     builder_defaults: '{{ os_defaults.get(builder.type, {}) }}'
 
-- set_fact:
+- name: 'Save the builder configuration'
+  set_fact:
     packer_builders: '{{ packer_builders | combine({ builder.name: builder_config }) }}'
