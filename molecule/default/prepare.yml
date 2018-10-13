@@ -1,0 +1,7 @@
+---
+- name: Prepare
+  hosts: all
+  gather_facts: false
+  roles:
+    - role: geerlingguy.ansible-role-packer
+      packer_version: '1.3.1'

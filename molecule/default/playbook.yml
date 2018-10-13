@@ -3,9 +3,29 @@
   hosts: all
   roles:
     - role: packer-template
-      packer_name: 'test_image'
+      packer_name: 'Windows2012R2CoreVirtualbox'
       packer_dest: '/tmp/packer'
       packer_os_type: 'windows'
       packer_options:
         image: 'Windows2012R2Core'
-        builders: {}
+        builders:
+          virtualbox-iso:
+
+    - role: packer-template
+      packer_name: 'Windows2012R2CoreAzureARM'
+      packer_dest: '/tmp/packer'
+      packer_os_type: 'windows'
+      packer_options:
+        image: 'Windows2012R2Core'
+        builders:
+          azure-arm:
+            location: 'Central US'
+
+    - role: packer-template
+      packer_name: 'Windows2012R2CoreAmazonEBS'
+      packer_dest: '/tmp/packer'
+      packer_os_type: 'windows'
+      packer_options:
+        image: 'Windows2012R2Core'
+        builders:
+          amazon-ebs:
