@@ -15,6 +15,10 @@ def packer_validate(host, template, args={}):
         .format(template, cmd.stdout, cmd.stderr)
 
 
+def test_validate_custom_template(host):
+    packer_validate(host, "CustomBuild.json")
+
+
 def test_validate_core_template_for_virtualbox(host):
     packer_validate(host, "Windows2012R2CoreVirtualbox.json")
 

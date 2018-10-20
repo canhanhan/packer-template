@@ -1,81 +1,24 @@
 ---
-- name: 'Validate mandatory settings'
-  fail:
-    msg: '{{ item }} key is not provided with packer_options'
-  when: 'item not in packer_options'
-  with_items:
-    - 'image'
-    - 'builders'
-
 - name: 'Set initial variables'
   set_fact:
-    packer_temp_builders: []
-    packer_builders: {}
-    packer_builder_catalog: []
-    packer_initialize_provisioners: []
-    packer_guest_tools_provisioners: []
-    packer_setup_provisioners: []
-    packer_cleanup_provisioners: []
-    packer_provisioners: []
-    packer_post_processors: []
+    packer_builder_list: []
+    packer_provisioners: '{{ packer_options.get("provisioners", []) }}'
+    packer_post_processors: '{{ packer_options.get("post-processors", []) }}'
     packer_variables: {}
+    packer_sensitive_variables: '{{ packer_options.get("sensitive-variables", []) }}'
 
-- name: 'Include os type specific variables'
-  include_vars: 'vars/{{ packer_os_type | basename }}.yml'
-
-- name: 'Execute OS type specific actions'
-  include_tasks: 'os_types/{{ packer_os_type | basename }}.yml'
-
-- name: 'Import provided builders'
+- name: 'Convert builders from dictionary to list'
   set_fact:
-    packer_temp_builders: '{{ packer_temp_builders + [builder] }}'
+    packer_builder_list: '{{ packer_builder_list + [builder] }}'
   vars:
     builder: '{{ {"name": item.key } | combine(item.value or {}, {"type": (item.value or {}).get("type", item.key) }) }}'
   with_dict: '{{ packer_options.builders }}'
 
-- include_tasks: 'per_builder.yml'
-  vars:
-    builder_category: '{{ builder.type.split("-") | first }}'
-  with_items: '{{ packer_temp_builders }}'
-  loop_control:
-    loop_var: builder
+- name: 'Execute pre-configured image tasks'
+  when: '"image" in packer_options'
+  include_tasks: 'preconfigured.yml'
 
-- name: 'Create list of provided builders'
-  set_fact:
-    packer_builder_list: '{{ packer_builders | dict2items | map(attribute="value") | list }}'
-
-- name: 'Create builder catalog by name and category'
-  set_fact:
-    packer_builder_catalog: '{{ packer_builder_catalog + [{ "key": item, "builders": names_by_type }, { "key": builder_category, "builders": names_by_category }] }}'
-  vars:
-    builder_category: '{{ item.split("-") | first }}'
-    names_by_type: '{{ packer_builder_list | selectattr("type", "equalto", item) | map(attribute="name") | unique | list }}'
-    names_by_category: '{{ packer_builder_list | selectattr("type", "match", "^"~builder_category~"-") | map(attribute="name") | unique | list }}'
-  with_items: '{{ packer_builder_list | map(attribute="type") | unique | list }}'
-
-- name: 'Set provisioners from image'
-  set_fact:
-    packer_initialize_provisioners: '{{ packer_initialize_provisioners + packer_image.get("provisioners", {}).get("initialize", []) }}'
-    packer_guest_tools_provisioners: '{{ packer_guest_tools_provisioners + packer_image.get("provisioners", {}).get("guest_tools", []) }}'
-    packer_setup_provisioners: '{{ packer_setup_provisioners + packer_image.get("provisioners", {}).get("setup", []) + packer_options.get("provisioners", []) }}'
-    packer_cleanup_provisioners: '{{ packer_cleanup_provisioners + packer_image.get("provisioners", {}).get("cleanup", []) }}'
-
-- name: 'Expand provisioners from options'
-  set_fact:
-    packer_provisioners: '{{ packer_provisioners + [provisioner | combine({ "only": matching_builders } if "only" in provisioner else {})] }}'
-  vars:
-    matching_builders: '{{ packer_builder_catalog | selectattr("key", "in", provisioner.get("only", [])) | map(attribute="builders") | flatten | list }}'
-  with_items: '{{ packer_initialize_provisioners + packer_guest_tools_provisioners + packer_setup_provisioners + packer_cleanup_provisioners }}'
-  loop_control:
-    loop_var: provisioner
-
-- name: 'Set variables from image'
-  set_fact:
-    packer_variables: '{{ packer_variables | combine({ item.key: item.value|string}) }}'
-  no_log: true
-  with_dict: '{{ packer_image.variables }}'
-
-- name: 'Set variables from options'
+- name: 'Convert variables to string'
   set_fact:
     packer_variables: '{{ packer_variables | combine({ item.key: item.value|string}) }}'
   no_log: true
@@ -91,7 +34,4 @@
       provisioners: '{{ packer_provisioners }}'
       post-processors: '{{ packer_post_processors }}'
       variables: '{{ packer_variables }}'
-      sensitive-variables: '{{ packer_options.get("sensitive-variables", []) }}'
-
-- name: 'Copy files and scripts'
-  include_tasks: 'files.yml'
+      sensitive-variables: '{{ packer_sensitive_variables }}'

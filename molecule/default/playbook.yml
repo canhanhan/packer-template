@@ -1,7 +1,22 @@
 ---
 - name: Converge
   hosts: all
+  pre_tasks:
+    - name: 'Create destination directory'
+      file:
+        state: 'directory'
+        path: '/tmp/packer'
   roles:
+    - role: packer-template
+      packer_name: 'CustomBuild'
+      packer_dest: '/tmp/packer'
+      packer_options:
+        builders:
+          virtualbox-iso:
+            iso_url: 'http://example.com/example.iso'
+            iso_checksum_type: 'none'
+            ssh_username: 'root'
+
     - role: packer-template
       packer_name: 'Windows2012R2CoreVirtualbox'
       packer_dest: '/tmp/packer'

@@ -1,0 +1,62 @@
+---
+- name: 'Include os type specific variables'
+  include_vars: 'vars/{{ packer_os_type | basename }}.yml'
+
+- name: 'Set initial variables'
+  set_fact:
+    packer_builders: {}
+    packer_provisioners: []
+    packer_builder_catalog: []
+    packer_initialize_provisioners: []
+    packer_guest_tools_provisioners: []
+    packer_setup_provisioners: []
+    packer_cleanup_provisioners: []
+    packer_image: '{{ packer_image_types[packer_options.image] }}'
+
+- name: 'Execute OS type specific actions'
+  include_tasks: 'os_types/{{ packer_os_type | basename }}.yml'
+
+- include_tasks: 'per_builder.yml'
+  vars:
+    builder_category: '{{ builder.type.split("-") | first }}'
+  with_items: '{{ packer_builder_list }}'
+  loop_control:
+    loop_var: builder
+
+- name: 'Create list of provided builders'
+  set_fact:
+    packer_builder_list: '{{ packer_builders | dict2items | map(attribute="value") | list }}'
+
+- name: 'Create builder catalog by name and category'
+  set_fact:
+    packer_builder_catalog: '{{ packer_builder_catalog + [{ "key": item, "builders": names_by_type }, { "key": builder_category, "builders": names_by_category }] }}'
+  vars:
+    builder_category: '{{ item.split("-") | first }}'
+    names_by_type: '{{ packer_builder_list | selectattr("type", "equalto", item) | map(attribute="name") | unique | list }}'
+    names_by_category: '{{ packer_builder_list | selectattr("type", "match", "^"~builder_category~"-") | map(attribute="name") | unique | list }}'
+  with_items: '{{ packer_builder_list | map(attribute="type") | unique | list }}'
+
+- name: 'Set provisioners from image'
+  set_fact:
+    packer_initialize_provisioners: '{{ packer_initialize_provisioners + packer_image.get("provisioners", {}).get("initialize", []) }}'
+    packer_guest_tools_provisioners: '{{ packer_guest_tools_provisioners + packer_image.get("provisioners", {}).get("guest_tools", []) }}'
+    packer_setup_provisioners: '{{ packer_setup_provisioners + packer_image.get("provisioners", {}).get("setup", []) + packer_options.get("provisioners", []) }}'
+    packer_cleanup_provisioners: '{{ packer_cleanup_provisioners + packer_image.get("provisioners", {}).get("cleanup", []) }}'
+
+- name: 'Expand provisioners from options'
+  set_fact:
+    packer_provisioners: '{{ packer_provisioners + [provisioner | combine({ "only": matching_builders } if "only" in provisioner else {})] }}'
+  vars:
+    matching_builders: '{{ packer_builder_catalog | selectattr("key", "in", provisioner.get("only", [])) | map(attribute="builders") | flatten | list }}'
+  with_items: '{{ packer_initialize_provisioners + packer_guest_tools_provisioners + packer_setup_provisioners + packer_cleanup_provisioners }}'
+  loop_control:
+    loop_var: provisioner
+
+- name: 'Set variables from image'
+  set_fact:
+    packer_variables: '{{ packer_variables | combine({ item.key: item.value|string}) }}'
+  no_log: true
+  with_dict: '{{ packer_image.variables }}'
+
+- name: 'Copy files and scripts'
+  include_tasks: 'files.yml'
