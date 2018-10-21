@@ -1,6 +1,6 @@
 ---
 - name: 'Include os type specific variables'
-  include_vars: 'vars/{{ packer_os_type | basename }}.yml'
+  include_vars: 'os_types/{{ packer_os_type | basename }}/vars.yml'
 
 - name: 'Set initial variables'
   set_fact:
@@ -14,7 +14,7 @@
     packer_image: '{{ packer_image_types[packer_options.image] }}'
 
 - name: 'Execute OS type specific actions'
-  include_tasks: 'os_types/{{ packer_os_type | basename }}.yml'
+  include_tasks: 'os_types/{{ packer_os_type | basename }}/tasks.yml'
 
 - include_tasks: 'per_builder.yml'
   vars:
