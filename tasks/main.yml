@@ -15,7 +15,7 @@
   with_dict: '{{ packer_options.builders }}'
 
 - name: 'Execute pre-configured image tasks'
-  when: '"image" in packer_options'
+  when: 'packer_image is defined'
   include_tasks: 'preconfigured.yml'
 
 - name: 'Convert variables to string'
