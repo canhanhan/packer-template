@@ -1,7 +1,4 @@
 ---
-- name: 'Include os type specific variables'
-  include_vars: '{{ packer_os_type_path }}/vars.yml'
-
 - name: 'Set initial variables'
   set_fact:
     packer_builders: {}
@@ -11,10 +8,10 @@
     packer_guest_tools_provisioners: []
     packer_setup_provisioners: []
     packer_cleanup_provisioners: []
-    packer_image: '{{ packer_image_types[packer_options.image] }}'
 
-- name: 'Execute OS type specific actions'
-  include_tasks: '{{ packer_os_type_path }}/tasks.yml'
+- name: 'Include OS type'
+  include_role:
+    name: '{{ packer_os_type_path }}'
 
 - include_tasks: 'per_builder.yml'
   vars:
