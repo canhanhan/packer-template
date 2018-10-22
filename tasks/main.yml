@@ -7,7 +7,7 @@
     packer_variables: {}
     packer_sensitive_variables: '{{ packer_options.get("sensitive-variables", []) }}'
 
-- name: 'Convert builders from dictionary to list'
+- name: 'Convert builders from dictionary to list and inject name and type'
   set_fact:
     packer_builder_list: '{{ packer_builder_list + [builder] }}'
   vars:
