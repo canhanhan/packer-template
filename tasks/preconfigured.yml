@@ -54,6 +54,3 @@
     packer_variables: '{{ packer_variables | combine({ item.key: item.value|string}) }}'
   no_log: true
   with_dict: '{{ packer_image.variables }}'
-
-- name: 'Copy files and scripts'
-  include_tasks: 'files.yml'
