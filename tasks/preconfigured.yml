@@ -9,9 +9,9 @@
     packer_setup_provisioners: []
     packer_cleanup_provisioners: []
 
-- name: 'Include OS type'
+- name: 'Include Packer configuration package'
   include_role:
-    name: '{{ packer_os_type_path }}'
+    name: '{{ packer_package }}'
 
 - include_tasks: 'per_builder.yml'
   vars:

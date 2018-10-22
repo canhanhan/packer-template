@@ -1,4 +1,3 @@
 ---
 packer_image_types: {}
 packer_template_path: '{{ packer_dest }}/{{ packer_name | basename }}.json'
-packer_os_type_path: 'os_types/{{ packer_os_type | basename }}'
