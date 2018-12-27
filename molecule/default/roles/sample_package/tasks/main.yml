@@ -1,0 +1,4 @@
+---
+- name: 'testing'
+  set_fact:
+    packer_image: {}

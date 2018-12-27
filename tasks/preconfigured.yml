@@ -1,6 +1,7 @@
 ---
 - name: 'Set initial variables'
   set_fact:
+    packer_image: !!null
     packer_builders: {}
     packer_provisioners: []
     packer_builder_catalog: []
@@ -12,6 +13,11 @@
 - name: 'Include Packer configuration package'
   include_role:
     name: '{{ packer_package }}'
+
+- name: 'Validate packer configuration package'
+  when: 'packer_image is not defined or packer_image == None'
+  fail:
+    msg: 'Mandatory variable packer_image was not defined in {{ packer_package }} package.'
 
 - include_tasks: 'per_builder.yml'
   vars:
@@ -53,4 +59,4 @@
   set_fact:
     packer_variables: '{{ packer_variables | combine({ item.key: item.value|string}) }}'
   no_log: true
-  with_dict: '{{ packer_image.variables }}'
+  with_dict: '{{ packer_image.get("variables", {}) }}'
