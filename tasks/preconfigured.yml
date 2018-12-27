@@ -52,6 +52,7 @@
   vars:
     matching_builders: '{{ packer_builder_catalog | selectattr("key", "in", provisioner.get("only", [])) | map(attribute="builders") | flatten | list }}'
   with_items: '{{ packer_initialize_provisioners + packer_guest_tools_provisioners + packer_setup_provisioners + packer_cleanup_provisioners }}'
+  when: '("only" not in provisioner) or (matching_builders|length > 0)'
   loop_control:
     loop_var: provisioner
 
